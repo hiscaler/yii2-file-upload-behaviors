@@ -12,10 +12,11 @@ use yadjet\helpers\StringHelper;
  * File uploaded behavior class.
  *
  * @author hiscaler <hiscaler@gmail.com>
- * @version 0.1
+ * @version 1.0.0
  *
  */
-class FileUploadBehavior extends Behavior {
+class FileUploadBehavior extends Behavior
+{
 
     const EVENT_AFTER_FILE_SAVE = 'afterFileSave';
 
@@ -39,7 +40,8 @@ class FileUploadBehavior extends Behavior {
     private $_oldPath;
     private $_filePath;
 
-    public function init() {
+    public function init()
+    {
         parent::init();
         $this->_rootPath = Yii::getAlias('@webroot');
     }
@@ -47,7 +49,8 @@ class FileUploadBehavior extends Behavior {
     /**
      * @inheritdoc
      */
-    public function events() {
+    public function events()
+    {
         return [
             ActiveRecord::EVENT_AFTER_FIND => 'afterFind',
             ActiveRecord::EVENT_BEFORE_VALIDATE => 'beforeValidate',
@@ -59,21 +62,24 @@ class FileUploadBehavior extends Behavior {
         ];
     }
 
-    private function removeFile() {
+    private function removeFile()
+    {
         $file = $this->_rootPath . $this->_oldPath;
         if (is_file($file)) {
             @unlink($file);
         }
     }
 
-    public function afterFind() {
+    public function afterFind()
+    {
         $this->_oldPath = $this->owner->{$this->attribute};
     }
 
     /**
      * Before validate event.
      */
-    public function beforeValidate() {
+    public function beforeValidate()
+    {
         $owner = $this->owner;
         $this->file = UploadedFile::getInstance($owner, $this->attribute);
         if ($this->file instanceof UploadedFile) {
@@ -88,7 +94,8 @@ class FileUploadBehavior extends Behavior {
      *
      * @throws \yii\base\InvalidConfigException
      */
-    public function beforeSave() {
+    public function beforeSave()
+    {
         if ($this->file instanceof UploadedFile) {
             $this->_filePath = $this->resolvePath($this->filePath);
             $this->owner->{$this->attribute} = str_replace($this->_rootPath, '', $this->_filePath);
@@ -101,7 +108,8 @@ class FileUploadBehavior extends Behavior {
      * @param string $path
      * @return string
      */
-    public function resolvePath($path) {
+    public function resolvePath($path)
+    {
         $pairs = [
             '[[ymd]]' => date('Ymd'),
             '[[random]]' => StringHelper::generateRandomString(),
@@ -114,7 +122,8 @@ class FileUploadBehavior extends Behavior {
     /**
      * After save event.
      */
-    public function afterSave() {
+    public function afterSave()
+    {
         if ($this->file instanceof UploadedFile) {
             $path = $this->_filePath;
             @mkdir(pathinfo($path, PATHINFO_DIRNAME), 0777, true);
@@ -132,7 +141,8 @@ class FileUploadBehavior extends Behavior {
     /**
      * Before delete event.
      */
-    public function beforeDelete() {
+    public function beforeDelete()
+    {
         $this->removeFile();
     }
 
@@ -140,7 +150,8 @@ class FileUploadBehavior extends Behavior {
      * After file save
      * Generate image thumb, if need.
      */
-    public function afterFileSave() {
+    public function afterFileSave()
+    {
         
     }
 

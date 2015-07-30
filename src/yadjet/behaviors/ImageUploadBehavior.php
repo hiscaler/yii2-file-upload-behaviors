@@ -13,10 +13,11 @@ use yadjet\helpers\StringHelper;
  * Image uploaded behavior class.
  *
  * @author hiscaler <hiscaler@gmail.com>
- * @version 0.1
+ * @version 1.0.0
  *
  */
-class ImageUploadBehavior extends Behavior {
+class ImageUploadBehavior extends Behavior
+{
 
     const EVENT_AFTER_FILE_SAVE = 'afterFileSave';
 
@@ -57,7 +58,8 @@ class ImageUploadBehavior extends Behavior {
     private $_oldPath;
     private $_filePath;
 
-    public function init() {
+    public function init()
+    {
         parent::init();
         $this->_rootPath = Yii::getAlias('@webroot');
     }
@@ -65,7 +67,8 @@ class ImageUploadBehavior extends Behavior {
     /**
      * @inheritdoc
      */
-    public function events() {
+    public function events()
+    {
         return [
             ActiveRecord::EVENT_AFTER_FIND => 'afterFind',
             ActiveRecord::EVENT_BEFORE_VALIDATE => 'beforeValidate',
@@ -78,13 +81,15 @@ class ImageUploadBehavior extends Behavior {
         ];
     }
 
-    private function getThumbnailPath($path) {
+    private function getThumbnailPath($path)
+    {
         $filename = \yii\helpers\StringHelper::basename($path);
 
         return str_replace($filename, '', $path) . str_replace('.', '_thumb.', $filename);
     }
 
-    private function removeFile() {
+    private function removeFile()
+    {
         $file = $this->_rootPath . $this->_oldPath;
         if (is_file($file)) {
             @unlink($file);
@@ -97,14 +102,16 @@ class ImageUploadBehavior extends Behavior {
         }
     }
 
-    public function afterFind() {
+    public function afterFind()
+    {
         $this->_oldPath = $this->owner->{$this->attribute};
     }
 
     /**
      * Before validate event.
      */
-    public function beforeValidate() {
+    public function beforeValidate()
+    {
         $owner = $this->owner;
         $this->file = UploadedFile::getInstance($owner, $this->attribute);
         if ($this->file instanceof UploadedFile) {
@@ -119,7 +126,8 @@ class ImageUploadBehavior extends Behavior {
      *
      * @throws \yii\base\InvalidConfigException
      */
-    public function beforeSave() {
+    public function beforeSave()
+    {
         if ($this->file instanceof UploadedFile) {
             $this->_filePath = $this->resolvePath($this->filePath);
             $owner = $this->owner;
@@ -136,7 +144,8 @@ class ImageUploadBehavior extends Behavior {
      * @param string $path
      * @return string
      */
-    public function resolvePath($path) {
+    public function resolvePath($path)
+    {
         $pairs = [
             '[[ymd]]' => date('Ymd'),
             '[[random]]' => StringHelper::generateRandomString(),
@@ -149,7 +158,8 @@ class ImageUploadBehavior extends Behavior {
     /**
      * After save event.
      */
-    public function afterSave() {
+    public function afterSave()
+    {
         if ($this->file instanceof UploadedFile) {
             $path = $this->_filePath;
             @mkdir(pathinfo($path, PATHINFO_DIRNAME), 0777, true);
@@ -167,7 +177,8 @@ class ImageUploadBehavior extends Behavior {
     /**
      * Before delete event.
      */
-    public function beforeDelete() {
+    public function beforeDelete()
+    {
         $this->removeFile();
     }
 
@@ -175,7 +186,8 @@ class ImageUploadBehavior extends Behavior {
      * After file save
      * Generate image thumb, if need.
      */
-    public function afterFileSave() {
+    public function afterFileSave()
+    {
         $images = [
             'original' => $this->_filePath
         ];

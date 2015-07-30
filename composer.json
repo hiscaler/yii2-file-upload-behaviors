@@ -1,12 +1,13 @@
 {
     "name": "yadjet/yii2-file-upload-behaviors",
     "description": "File upload behaviors For Yii2",
-    "keywords": ["yii2", "upload", "behavior"],
+    "keywords": ["yii2", "upload", "file upload", "image upload", "behavior"],
     "type": "project",
     "license": "BSD-3-Clause",
     "require": {
         "php": ">=5.4",
-        "yiisoft/yii2": "*"
+        "yiisoft/yii2": "*",
+        "yiisoft/yii2-imagine": "~2.0.0"
     },
     "authors": [
         {
