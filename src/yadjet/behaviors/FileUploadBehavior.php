@@ -6,7 +6,6 @@ use Yii;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
 use yii\web\UploadedFile;
-use yadjet\helpers\StringHelper;
 
 /**
  * File uploaded behavior class.
@@ -22,12 +21,14 @@ class FileUploadBehavior extends Behavior
 
     /**
      * Uplaod file attribute name
+     *
      * @var string
      */
     public $attribute = '';
 
     /**
      * File save path
+     *
      * @var string
      */
     private $filePath = '@webroot/uploads/[[ymd]]/[[random]].[[extension]]';
@@ -84,7 +85,7 @@ class FileUploadBehavior extends Behavior
         $this->file = UploadedFile::getInstance($owner, $this->attribute);
         if ($this->file instanceof UploadedFile) {
             $owner->{$this->attribute} = $this->file;
-        } else if (!$owner->isNewRecord) {
+        } elseif (!$owner->isNewRecord) {
             $owner->{$this->attribute} = $this->_oldPath;
         }
     }
@@ -112,7 +113,7 @@ class FileUploadBehavior extends Behavior
     {
         $pairs = [
             '[[ymd]]' => date('Ymd'),
-            '[[random]]' => StringHelper::generateRandomString(),
+            '[[random]]' => Yii::$app->getSecurity()->generateRandomString(),
             '[[extension]]' => strtolower(pathinfo($this->owner->{$this->attribute})['extension']),
         ];
 
@@ -152,7 +153,6 @@ class FileUploadBehavior extends Behavior
      */
     public function afterFileSave()
     {
-        
     }
 
 }
