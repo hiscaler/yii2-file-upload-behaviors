@@ -2,12 +2,14 @@
 
 namespace yadjet\behaviors;
 
+use yadjet\helpers\ImageHelper;
+use yadjet\helpers\IsHelper;
+use yadjet\helpers\StringHelper;
 use Yii;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
-use yii\web\UploadedFile;
 use yii\imagine\Image;
-use yadjet\helpers\StringHelper;
+use yii\web\UploadedFile;
 
 /**
  * Image uploaded behavior class.
@@ -23,6 +25,7 @@ class ImageUploadBehavior extends Behavior
 
     /**
      * Uplaod file attribute name
+     *
      * @var string
      */
     public $attribute = '';
@@ -30,6 +33,7 @@ class ImageUploadBehavior extends Behavior
 
     /**
      * Thumbnail configs
+     *
      * @var array
      */
     public $thumb = [
@@ -38,6 +42,7 @@ class ImageUploadBehavior extends Behavior
 
     /**
      * Watermark configs
+     *
      * @var array
      */
     public $watermark = [
@@ -46,6 +51,7 @@ class ImageUploadBehavior extends Behavior
 
     /**
      * File save path
+     *
      * @var string
      */
     private $filePath = '@webroot/uploads/[[ymd]]/[[random]].[[extension]]';
@@ -113,7 +119,34 @@ class ImageUploadBehavior extends Behavior
     public function beforeValidate()
     {
         $owner = $this->owner;
+        $img = $owner->{$this->attribute};
+        if (IsHelper::base64Image($img)) {
+            $tempFilename = tempnam(sys_get_temp_dir(), 'bs-upload-');
+            if (($index = stripos($img, ';base64')) !== false) {
+                $type = substr($img, 5, $index - 5);
+            } else {
+                $type = mime_content_type($tempFilename);
+            }
+            $name = "tmp.";
+            if (($index = stripos($type, '/')) !== false) {
+                $name .= substr($type, $index + 1);
+            } else {
+                $name .= 'jpg';
+            }
+            file_put_contents($tempFilename, ImageHelper::base64Decode($img));
+            $_FILES[$this->attribute] = [
+                'name' => $name,
+                'tmp_name' => $tempFilename,
+                'type' => $type,
+                'size' => filesize($tempFilename),
+                'tmp_resource' => fopen($tempFilename, 'r'),
+                'error' => UPLOAD_ERR_OK,
+            ];
+        }
+
         $this->file = UploadedFile::getInstance($owner, $this->attribute);
+        !$this->file && $this->file = UploadedFile::getInstanceByName($this->attribute);
+
         if ($this->file instanceof UploadedFile) {
             $owner->{$this->attribute} = $this->file;
         } else if (!$owner->isNewRecord) {
@@ -164,7 +197,7 @@ class ImageUploadBehavior extends Behavior
             $path = $this->_filePath;
             @mkdir(pathinfo($path, PATHINFO_DIRNAME), 0777, true);
             if (!$this->file->saveAs($path)) {
-                throw new Exception('File saving error.');
+                throw new \Exception('File saving error.');
             }
             $owner = $this->owner;
             if (!$owner->isNewRecord && !empty($owner->oldAttributes[$this->attribute])) {
