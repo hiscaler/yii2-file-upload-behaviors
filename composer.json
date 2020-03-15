@@ -12,8 +12,8 @@
     "license": "BSD-3-Clause",
     "require": {
         "php": ">=5.4",
-        "yiisoft/yii2": "*",
-        "yiisoft/yii2-imagine": "~2.0.0",
+        "yiisoft/yii2": "~2.0",
+        "yiisoft/yii2-imagine": "~2.2",
         "yadjet/helpers": "dev-master"
     },
     "authors": [
